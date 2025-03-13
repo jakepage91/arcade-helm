@@ -41,6 +41,22 @@ If you're using Minikube, follow these steps:
 
 5. Visit http://localhost:9099 in your browser
 
+### Persistence
+
+By default, persistence is disabled for both PostgreSQL and Redis to make local development easier. If you want to enable persistence:
+
+```bash
+# Enable persistence for both PostgreSQL and Redis
+helm install arcade . --set postgres.persistence.enabled=true --set redis.persistence.enabled=true
+
+# Or update values.yaml and set persistence.enabled to true for both services
+```
+
+For production environments, you should:
+1. Enable persistence
+2. Configure appropriate storage classes
+3. Set secure passwords
+
 ## Configuration
 
 The following table lists the configurable parameters of the Arcade chart and their default values.
@@ -85,7 +101,7 @@ The following table lists the configurable parameters of the Arcade chart and th
 | `postgres.service.port` | PostgreSQL service port | `5432` |
 | `postgres.resources` | PostgreSQL resource requests/limits | See `values.yaml` |
 | `postgres.environment` | PostgreSQL environment variables | See `values.yaml` |
-| `postgres.persistence.enabled` | Enable PostgreSQL persistence | `true` |
+| `postgres.persistence.enabled` | Enable PostgreSQL persistence | `false` |
 | `postgres.persistence.size` | PostgreSQL persistence size | `1Gi` |
 | `postgres.persistence.storageClass` | PostgreSQL persistence storage class | `""` |
 
@@ -100,8 +116,7 @@ The following table lists the configurable parameters of the Arcade chart and th
 | `redis.service.type` | Redis service type | `ClusterIP` |
 | `redis.service.port` | Redis service port | `6379` |
 | `redis.resources` | Redis resource requests/limits | See `values.yaml` |
-| `redis.command` | Redis command | See `values.yaml` |
-| `redis.persistence.enabled` | Enable Redis persistence | `true` |
+| `redis.persistence.enabled` | Enable Redis persistence | `false` |
 | `redis.persistence.size` | Redis persistence size | `1Gi` |
 | `redis.persistence.storageClass` | Redis persistence storage class | `""` |
 
@@ -115,6 +130,17 @@ kubectl logs -f deployment/arcade-worker
 kubectl logs -f deployment/arcade-postgres
 kubectl logs -f deployment/arcade-redis
 ```
+
+### Common Issues
+
+1. **PersistentVolumeClaim not found**: If you see an error about missing PVCs, make sure you either have a default StorageClass configured or disable persistence:
+   ```bash
+   helm install arcade . --set postgres.persistence.enabled=false --set redis.persistence.enabled=false
+   ```
+
+2. **Redis command not found**: If Redis fails to start with a command not found error, make sure the Redis deployment is using the correct args format.
+
+3. **Worker fails to start**: If the worker fails to start, check that the toolkits are properly configured.
 
 ## Uninstalling the Chart
 
