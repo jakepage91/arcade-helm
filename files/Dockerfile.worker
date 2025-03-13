@@ -1,0 +1,9 @@
+ARG VERSION=1.0.5
+
+FROM ghcr.io/arcadeai/worker-base:${VERSION}
+
+# Copy the file that lists all your desired toolkits
+COPY toolkits.txt ./
+
+# Install these toolkits
+RUN pip install -r toolkits.txt 
