@@ -22,7 +22,13 @@ spec:
         - name: redis
           image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
           imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
-          command: {{ .Values.redis.command }}
+          args:
+            - redis-server
+            - --save
+            - "60"
+            - "1"
+            - --loglevel
+            - warning
           ports:
             - name: redis
               containerPort: {{ .Values.redis.service.port }}
