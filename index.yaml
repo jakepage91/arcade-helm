@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   arcade:
   - apiVersion: v2
-    appVersion: 1.2.1
+    appVersion: 1.1.2
     created: "2025-03-13T17:20:12.381359Z"
     description: A Helm chart for Arcade AI Engine and Worker
     digest: f5748aa457d12369df62fb188b186105ac42eca313a77e9735eb2ce71cd4852d
@@ -13,5 +13,5 @@ entries:
     type: application
     urls:
     - https://jakepage91.github.io/arcade-helm/charts/arcade-0.1.0.tgz
-    version: 0.1.1
+    version: 1.1.2
 generated: "2025-03-13T17:20:12.379387Z"

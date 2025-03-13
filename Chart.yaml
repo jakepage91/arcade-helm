@@ -2,7 +2,7 @@ apiVersion: v2
 name: arcade
 description: A Helm chart for Arcade AI Engine and Worker
 type: application
-version: 0.1.1
+version: 1.1.2
 appVersion: "1.1.2"
 maintainers:
   - name: Arcade User
