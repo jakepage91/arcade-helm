@@ -1,0 +1,132 @@
+# Default values for arcade Helm chart
+
+# Engine configuration
+engine:
+  image:
+    repository: ghcr.io/arcadeai/engine
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9099
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  environment:
+    # API configuration
+    API_DEVELOPMENT: "true"
+    ARCADE_API_HOST: "0.0.0.0"
+    ARCADE_API_PORT: "9099"
+    # Auth providers - dummy values since they're disabled
+    ATLASSIAN_CLIENT_ID: "dummy"
+    ATLASSIAN_CLIENT_SECRET: "dummy"
+    DISCORD_CLIENT_ID: "dummy"
+    DISCORD_CLIENT_SECRET: "dummy"
+    DROPBOX_CLIENT_ID: "dummy"
+    DROPBOX_CLIENT_SECRET: "dummy"
+    GITHUB_CLIENT_ID: "dummy"
+    GITHUB_CLIENT_SECRET: "dummy"
+    GOOGLE_CLIENT_ID: "dummy"
+    GOOGLE_CLIENT_SECRET: "dummy"
+    LINKEDIN_CLIENT_ID: "dummy"
+    LINKEDIN_CLIENT_SECRET: "dummy"
+    MICROSOFT_CLIENT_ID: "dummy"
+    MICROSOFT_CLIENT_SECRET: "dummy"
+    SLACK_CLIENT_ID: "dummy"
+    SLACK_CLIENT_SECRET: "dummy"
+    SPOTIFY_CLIENT_ID: "dummy"
+    SPOTIFY_CLIENT_SECRET: "dummy"
+    X_CLIENT_ID: "dummy"
+    X_CLIENT_SECRET: "dummy"
+    ZOOM_CLIENT_ID: "dummy"
+    ZOOM_CLIENT_SECRET: "dummy"
+    # LLM configuration
+    OPENAI_API_KEY: "dummy-api-key"
+    # Telemetry
+    TELEMETRY_ENVIRONMENT: "development"
+    TELEMETRY_LOGGING_LEVEL: "info"
+    TELEMETRY_LOGGING_ENCODING: "console"
+    # Root key
+    ROOT_KEY_1: "dummy-root-key"
+    # Worker configuration
+    ARCADE_WORKER_URI: "http://{{ .Release.Name }}-worker:8002"
+    ARCADE_WORKER_SECRET: "dummy-worker-secret"
+
+# Worker configuration
+worker:
+  enabled: true
+  build:
+    enabled: true
+    context: .
+    dockerfile: Dockerfile.worker
+  image:
+    repository: arcade-worker
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8002
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  environment:
+    WORKER_PORT: "8002"
+    ARCADE_WORKER_SECRET: "dummy-worker-secret"
+    OPENAI_API_KEY: "dummy-api-key"
+
+# PostgreSQL configuration
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5432
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  environment:
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "postgres"
+    POSTGRES_DB: "arcade"
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+
+# Redis configuration
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 6379
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: "" 

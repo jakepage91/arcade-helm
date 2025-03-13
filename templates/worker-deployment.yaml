@@ -1,0 +1,80 @@
+{{- if .Values.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-worker
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-worker
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-worker
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-worker
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- if .Values.worker.build.enabled }}
+      initContainers:
+        - name: build-worker
+          image: docker:20.10.16
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Building worker image..."
+              # Create Dockerfile
+              cat > /workspace/Dockerfile << 'EOF'
+              ARG VERSION=1.0.5
+              
+              FROM ghcr.io/arcadeai/worker-base:${VERSION}
+              
+              # Copy the file that lists all your desired toolkits
+              COPY toolkits.txt ./
+              
+              # Install these toolkits
+              RUN pip install -r toolkits.txt
+              EOF
+              
+              # Create toolkits.txt
+              cat > /workspace/toolkits.txt << 'EOF'
+              arcade-google
+              arcade-web
+              arcade-zoom
+              EOF
+              
+              # Build the image
+              docker build -t {{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }} /workspace
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+            - name: workspace
+              mountPath: /workspace
+      {{- end }}
+      containers:
+        - name: worker
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.worker.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          env:
+            {{- range $key, $value := .Values.worker.environment }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+      {{- if .Values.worker.build.enabled }}
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: workspace
+          emptyDir: {}
+      {{- end }}
+{{- end }} 
